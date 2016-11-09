@@ -44,8 +44,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button buttonUpload;
     private Button cap_img;
     private FloatingActionButton fab;
-
+    private ImageView mImageView;
     private ImageView imageView;
+    private Bitmap mImageBitmap;
 
     private EditText editTextName;
 
@@ -53,7 +54,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private int PICK_IMAGE_REQUEST = 1;
 
-    private String UPLOAD_URL ="http://192.168.1.103/VolleyUpload/upload.php";
+    private String UPLOAD_URL ="http://192.168.1.104/VolleyUpload/upload.php";
 
     private String KEY_IMAGE = "image";
     private String KEY_NAME = "name";
@@ -73,10 +74,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         buttonUpload = (Button) findViewById(R.id.buttonUpload);
         cap_img = (Button) findViewById(R.id.cap_img);
         fab = (FloatingActionButton) findViewById(R.id.fab);
-
+        mImageView = (ImageView) findViewById(R.id.imageView);
         editTextName = (EditText) findViewById(R.id.editText);
 
-        imageView  = (ImageView) findViewById(R.id.imageView);
+        //imageView  = (ImageView) findViewById(R.id.imageView);
 
         buttonChoose.setOnClickListener(this);
         buttonUpload.setOnClickListener(this);
@@ -157,10 +158,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 //Getting the Bitmap from Gallery
                 bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), filePath);
                 //Setting the Bitmap to ImageView
-                imageView.setImageBitmap(bitmap);
+                mImageView.setImageBitmap(bitmap);
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
+        else if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+            try {
+                bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), Uri.parse(mCurrentPhotoPath));
+                mImageView.setImageBitmap(bitmap);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        else {
+            Log.e("X","Error hai");
         }
     }
 
@@ -182,7 +194,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         if(v == fab){
             dispatchTakePictureIntent();
-            setPic();
+
         }
     }
 
@@ -190,11 +202,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // Create an image file name
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String imageFileName = "JPEG_" + timeStamp + "_";
-        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File storageDir = Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES);
         File image = File.createTempFile(
-                imageFileName,  /* prefix */
-                ".jpg",         /* suffix */
-                storageDir      /* directory */
+                imageFileName,  // prefix
+                ".jpeg",         // suffix
+                storageDir      // directory
         );
 
         // Save a file: path for use with ACTION_VIEW intents
@@ -215,11 +228,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
             // Continue only if the File was successfully created
             if (photoFile != null) {
-                Uri photoURI = FileProvider.getUriForFile(this,
-                        "com.example.android.fileprovider",
-                        photoFile);
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
-                startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
+
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile));
+                startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
             }
         }
     }
@@ -227,7 +238,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void setPic() {
         // Get the dimensions of the View
         Log.e("X","setPic entered");
-        ImageView mImageView = (ImageView) findViewById(R.id.imageView);
+
         int targetW = mImageView.getWidth();
         int targetH = mImageView.getHeight();
 
