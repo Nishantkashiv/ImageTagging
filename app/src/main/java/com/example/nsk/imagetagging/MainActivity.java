@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private int PICK_IMAGE_REQUEST = 1;
 
-    private String UPLOAD_URL ="http://192.168.1.104/VolleyUpload/upload.php";
+    private String UPLOAD_URL ="http://192.168.0.105/VolleyUpload/upload.php";
 
     private String KEY_IMAGE = "image";
     private String KEY_NAME = "name";
@@ -158,6 +158,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 //Getting the Bitmap from Gallery
                 bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), filePath);
                 //Setting the Bitmap to ImageView
+
                 mImageView.setImageBitmap(bitmap);
             } catch (IOException e) {
                 e.printStackTrace();
